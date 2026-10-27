@@ -64,4 +64,15 @@ class ProfilesRepository(private val db: AppDb) {
     suspend fun setSetting(key: String, value: String) = settings.set(Setting(key, value))
 
     fun observeReminders() = db.reminderDao().observeAll()
+    suspend fun getAllPeople(): List<Person> = persons.getAll()
+    suspend fun reminderSent(personId: Long, year: Int, daysBefore: Int): Boolean =
+        db.reminderDao().exists(personId, year, daysBefore) > 0     // if you changed exists() to Boolean, drop "> 0"
+    suspend fun logReminder(log: ReminderLog) = db.reminderDao().insert(log)
+
+
+
+    fun getSettingBlocking(key: String): String? =
+        db.openHelper.readableDatabase
+            .query("SELECT value FROM settings WHERE `key` = ?", arrayOf(key))
+            .use { if (it.moveToFirst()) it.getString(0) else null }
 }

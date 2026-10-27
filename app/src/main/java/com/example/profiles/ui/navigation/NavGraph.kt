@@ -3,11 +3,14 @@ package com.example.profiles.ui.navigation
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.example.profiles.ui.edit.EditScreen
 import com.example.profiles.ui.main.MainScreen
+import com.example.profiles.ui.profile.ProfileScreen
+import com.example.profiles.ui.settings.SettingsScreen
 
 object Routes {
     const val MAIN = "main"
@@ -21,12 +24,12 @@ object Routes {
 }
 
 @Composable
-fun NavGraph() {
+fun NavGraph(openPersonId: Long? = null) {
     val nav = rememberNavController()
     NavHost(navController = nav, startDestination = Routes.MAIN) {
         composable(Routes.MAIN) {
         MainScreen(
-            onPersonClick = { id -> nav.navigate(Routes.edit(id)) },
+            onPersonClick = { id -> nav.navigate(Routes.profile(id)) },
             onAddClick = { nav.navigate(Routes.edit()) },
             onSettingsClick = { nav.navigate(Routes.SETTINGS) },
             onNotificationsClick = { nav.navigate(Routes.NOTIFICATIONS) }
@@ -35,8 +38,11 @@ fun NavGraph() {
         composable(
             Routes.PROFILE,
             arguments = listOf(navArgument("id") { type = NavType.LongType })
-        ) { entry ->
-            Text("Profile ${entry.arguments?.getLong("id")}")
+        ) {
+            ProfileScreen(
+                onBack = { nav.popBackStack() },
+                onEdit = { id -> nav.navigate(Routes.edit(id)) }
+            )
         }
         composable(
             Routes.EDIT,
@@ -44,7 +50,12 @@ fun NavGraph() {
         ) {
             EditScreen(onDone = { nav.popBackStack() })
         }
-        composable(Routes.SETTINGS) { Text("Settings") }
+        composable(Routes.SETTINGS) {
+            SettingsScreen(onBack = { nav.popBackStack() })
+        }
         composable(Routes.NOTIFICATIONS) { Text("Notifications") }
+    }
+    LaunchedEffect(openPersonId) {
+        openPersonId?.let { nav.navigate(Routes.profile(it)) }
     }
 }

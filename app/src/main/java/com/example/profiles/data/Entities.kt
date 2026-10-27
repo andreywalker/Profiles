@@ -4,7 +4,7 @@ package com.example.profiles.data
 import androidx.room.*
 import java.time.LocalDate
 
-enum class FieldType { TEXT,  NUMBER, DATE, BOOLEAN }
+enum class FieldType { TEXT/*,  NUMBER, DATE, BOOLEAN*/ }
 
 @Entity(tableName = "person_groups")
 data class Group(

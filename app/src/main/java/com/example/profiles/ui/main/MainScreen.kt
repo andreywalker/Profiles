@@ -1,6 +1,10 @@
 package com.example.profiles.ui.main
 
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,14 +23,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.profiles.R
+import com.example.profiles.notifications.NotificationHelper
 import com.example.profiles.utils.ageOf
 import com.example.profiles.ui.components.Avatar
+import com.example.profiles.ui.components.GroupNameDialog
 import com.example.profiles.ui.components.displayName
 
 @Composable
@@ -37,6 +44,16 @@ fun MainScreen(
     onNotificationsClick: () -> Unit,
     viewModel: MainViewModel = viewModel(factory = MainViewModel.Factory)
 ) {
+    val context = LocalContext.current
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { /* nothing to do: if denied, reminders still appear in history */ }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= 33 && !NotificationHelper.hasPermission(context)) {
+            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
     val state by viewModel.state.collectAsStateWithLifecycle()
     MainContent(
         state = state,
@@ -45,8 +62,10 @@ fun MainScreen(
         onPersonClick = onPersonClick,
         onAddClick = onAddClick,
         onSettingsClick = onSettingsClick,
+        onAddGroup = viewModel::addGroup,
         onNotificationsClick = onNotificationsClick
     )
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,11 +76,13 @@ fun MainContent(
     onGroupSelected: (Long?) -> Unit,
     onPersonClick: (Long) -> Unit,
     onAddClick: () -> Unit,
+    onAddGroup: (String) -> Unit,
     onSettingsClick: () -> Unit,
     onNotificationsClick: () -> Unit
 ) {
     // survives rotation thanks to rememberSaveable
     var searchOpen by rememberSaveable { mutableStateOf(false) }
+    var showNewGroupDialog by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -101,7 +122,7 @@ fun MainContent(
         }
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
-            GroupTabs(state, onGroupSelected)
+            GroupTabs(state, onGroupSelected, onAddGroupClick = { showNewGroupDialog = true })
             if (state.people.isEmpty()) {
                 EmptyState()
             } else {
@@ -112,6 +133,15 @@ fun MainContent(
                 }
             }
         }
+    }
+    if (showNewGroupDialog) {
+        GroupNameDialog(
+            title = stringResource(R.string.new_group),
+            confirmText = stringResource(R.string.create),
+            existingNames = state.groups.map { it.displayName() },
+            onDismiss = { showNewGroupDialog = false },
+            onConfirm = onAddGroup
+        )
     }
 }
 
@@ -136,8 +166,11 @@ private fun SearchField(query: String, onQueryChange: (String) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun GroupTabs(state: MainUiState, onGroupSelected: (Long?) -> Unit) {
-    // index 0 = "All", then groups (No group is already last from the DAO)
+private fun GroupTabs(
+    state: MainUiState,
+    onGroupSelected: (Long?) -> Unit,
+    onAddGroupClick: () -> Unit
+) {
     val selectedIndex = state.groups.indexOfFirst { it.id == state.selectedGroupId } + 1
     PrimaryScrollableTabRow(selectedTabIndex = selectedIndex, edgePadding = 0.dp) {
         Tab(
@@ -152,6 +185,12 @@ private fun GroupTabs(state: MainUiState, onGroupSelected: (Long?) -> Unit) {
                 text = { Text(group.displayName()) }
             )
         }
+        // never "selected": it just opens the dialog
+        Tab(
+            selected = false,
+            onClick = onAddGroupClick,
+            icon = { Icon(Icons.Filled.Add, stringResource(R.string.new_group)) }
+        )
     }
 }
 

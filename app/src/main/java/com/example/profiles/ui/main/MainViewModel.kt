@@ -11,6 +11,7 @@ import com.example.profiles.data.Group
 import com.example.profiles.data.Person
 import com.example.profiles.data.ProfilesRepository
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 data class PersonItem(val person: Person, val group: Group?)
 
@@ -21,7 +22,7 @@ data class MainUiState(
     val query: String = ""
 )
 
-class MainViewModel(repo: ProfilesRepository) : ViewModel() {
+class MainViewModel(private val repo: ProfilesRepository) : ViewModel() {
 
     private val query = MutableStateFlow("")
     private val selectedGroupId = MutableStateFlow<Long?>(null)
@@ -47,7 +48,12 @@ class MainViewModel(repo: ProfilesRepository) : ViewModel() {
 
     fun onQueryChange(value: String) { query.value = value }
     fun onGroupSelected(id: Long?) { selectedGroupId.value = id }
-
+    fun addGroup(name: String) {
+        viewModelScope.launch {
+            val id = repo.addGroup(name)
+            selectedGroupId.value = id
+        }
+    }
     companion object {
         val Factory = viewModelFactory {
             initializer {

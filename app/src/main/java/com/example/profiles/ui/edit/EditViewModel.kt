@@ -79,10 +79,15 @@ class EditViewModel(
         }
     }
 
-    /** Generic updater for simple fields: vm.update { it.copy(surname = v) } */
+    fun createGroup(name: String) {
+        viewModelScope.launch {
+            val id = repo.addGroup(name)
+            _state.update { it.copy(groupId = id) }
+        }
+    }
+
     fun update(change: (EditUiState) -> EditUiState) = _state.update(change)
 
-    /** "Name" follows First name until the user changes it. */
     fun onFirstNameChange(value: String) = _state.update {
         val follows = it.name.isBlank() || it.name == it.firstName
         it.copy(firstName = value, name = if (follows) value else it.name)

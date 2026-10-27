@@ -9,6 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material3.*
@@ -36,6 +37,7 @@ fun EditScreen(
     viewModel: EditViewModel = viewModel(factory = EditViewModel.Factory)
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    var showNewGroupDialog by rememberSaveable { mutableStateOf(false) }
     val groups by viewModel.groups.collectAsStateWithLifecycle()
     val fieldDefs by viewModel.fieldDefs.collectAsStateWithLifecycle()
 
@@ -94,12 +96,13 @@ fun EditScreen(
             }
 
             SectionCard(stringResource(R.string.section_main_info)) {
+                FormField(state.name, { v -> viewModel.update { it.copy(name = v) } },
+                    stringResource(R.string.called_name), required = true, showError = err)
                 FormField(state.firstName, viewModel::onFirstNameChange,
                     stringResource(R.string.first_name), required = true, showError = err)
                 FormField(state.surname, { v -> viewModel.update { it.copy(surname = v) } },
                     stringResource(R.string.surname), required = true, showError = err)
-                FormField(state.name, { v -> viewModel.update { it.copy(name = v) } },
-                    stringResource(R.string.called_name), required = true, showError = err)
+
 
                 ClickableField(
                     value = state.birthDate?.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)) ?: "",
@@ -126,6 +129,15 @@ fun EditScreen(
                                 }
                             )
                         }
+                        HorizontalDivider()
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.new_group)) },
+                            leadingIcon = { Icon(Icons.Filled.Add, contentDescription = null) },
+                            onClick = {
+                                showGroupMenu = false
+                                showNewGroupDialog = true
+                            }
+                        )
                     }
                 }
             }
@@ -170,6 +182,15 @@ fun EditScreen(
             initial = state.birthDate,
             onDismiss = { showDatePicker = false },
             onPicked = { date -> viewModel.update { it.copy(birthDate = date) } }
+        )
+    }
+    if (showNewGroupDialog) {
+        GroupNameDialog(
+            title = stringResource(R.string.new_group),
+            confirmText = stringResource(R.string.create),
+            existingNames = groups.map { it.displayName() },
+            onDismiss = { showNewGroupDialog = false },
+            onConfirm = viewModel::createGroup
         )
     }
 }
