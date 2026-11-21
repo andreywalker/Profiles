@@ -20,6 +20,11 @@ interface PersonDao {
 
     @Query("UPDATE persons SET groupId = :toGroup WHERE groupId = :fromGroup")
     suspend fun moveGroup(fromGroup: Long, toGroup: Long)
+
+    @Query("SELECT * FROM persons WHERE id = :id")
+    suspend fun getById(id: Long): Person?
+
+    @Upsert suspend fun upsert(person: Person)
 }
 
 @Dao
@@ -34,6 +39,8 @@ interface GroupDao {
     @Update suspend fun update(group: Group)
     @Query("DELETE FROM person_groups WHERE id = :id AND isDefault = 0")
     suspend fun delete(id: Long)
+    @Query("SELECT EXISTS(SELECT 1 FROM person_groups WHERE id = :id)")
+    suspend fun exists(id: Long): Boolean
 }
 
 @Dao
@@ -59,6 +66,11 @@ interface FieldDao {
     @Upsert suspend fun upsertValues(values: List<FieldValue>)
     @Query("DELETE FROM field_values WHERE personId = :personId AND fieldId = :fieldId")
     suspend fun deleteValue(personId: Long, fieldId: Long)
+
+    @Query("SELECT id FROM field_defs")
+    suspend fun allDefIds(): List<Long>
+    @Query("DELETE FROM field_values WHERE personId = :personId")
+    suspend fun deleteAllValues(personId: Long)
 }
 
 @Dao
@@ -79,4 +91,24 @@ interface SettingDao {
     fun observe(key: String): Flow<String?>
 
     @Upsert suspend fun set(setting: Setting)
+}
+
+@Dao
+interface HistoryDao {
+    @Query("SELECT * FROM history WHERE timestamp >= :since ORDER BY timestamp DESC")
+    fun observeSince(since: Long): Flow<List<HistoryEntry>>
+
+    @Query("SELECT * FROM history WHERE id = :id")
+    suspend fun get(id: Long): HistoryEntry?
+
+    @Query("SELECT * FROM history")
+    suspend fun getAll(): List<HistoryEntry>
+
+    @Insert suspend fun insert(entry: HistoryEntry): Long
+
+    @Query("UPDATE history SET revertedAt = :at WHERE id = :id")
+    suspend fun markReverted(id: Long, at: Long)
+
+    @Query("DELETE FROM history WHERE timestamp < :before")
+    suspend fun deleteOlderThan(before: Long)
 }

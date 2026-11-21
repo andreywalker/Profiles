@@ -75,4 +75,23 @@
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>
     </plurals>
+    <string name="history">History</string>
+    <string name="history_hint">Changes from the last 30 days</string>
+    <string name="history_empty">No changes in the last 30 days</string>
+    <string name="history_created">Created: %1$s</string>
+    <string name="history_updated">Edited: %1$s</string>
+    <string name="history_deleted">Deleted: %1$s</string>
+    <string name="revert">Revert</string>
+    <string name="reverted">Reverted</string>
+    <string name="revert_title">Revert this action?</string>
+    <string name="revert_created_text">%1$s will be deleted.</string>
+    <string name="revert_updated_text">%1$s will go back to how it was before this change. Later changes to this profile will be lost.</string>
+    <string name="revert_deleted_text">%1$s will be restored.</string>
+    <string name="msg_reverted">Action reverted</string>
+    <string name="photo">Photo</string>
+    <string name="photo_none">none</string>
+    <string name="photo_old">old photo</string>
+    <string name="photo_new">new photo</string>
+    <string name="undo">Undo</string>
+    <string name="msg_profile_deleted">%1$s deleted</string>
 </resources>

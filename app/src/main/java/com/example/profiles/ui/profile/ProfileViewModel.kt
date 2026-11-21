@@ -9,7 +9,10 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.profiles.ProfilesApp
+import com.example.profiles.R
 import com.example.profiles.data.*
+import com.example.profiles.utils.Messenger
+import com.example.profiles.utils.UiMessage
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -23,7 +26,8 @@ data class ProfileUiState(
 class ProfileViewModel(
     savedState: SavedStateHandle,
     private val repo: ProfilesRepository,
-    private val photos: PhotoStorage
+    private val photos: PhotoStorage,
+    private val messenger: Messenger
 ) : ViewModel() {
 
     val personId: Long = checkNotNull(savedState["id"])
@@ -43,14 +47,19 @@ class ProfileViewModel(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ProfileUiState())
 
-    private val _deleted = MutableStateFlow(false)
-    val deleted: StateFlow<Boolean> = _deleted.asStateFlow()
+
 
     fun delete() {
         viewModelScope.launch {
-            photos.delete(state.value.person?.photoPath)
-            repo.deletePerson(personId)          // custom values go with it (CASCADE)
-            _deleted.value = true
+            val name = state.value.person?.let { "${it.firstName} ${it.surname}" } ?: return@launch
+            val entryId = repo.deletePerson(personId) ?: return@launch
+            messenger.show(
+                UiMessage(
+                text = R.string.msg_profile_deleted,
+                args = listOf(name),
+                action = R.string.undo,
+                onAction = { repo.revert(entryId) }      // same as Revert in History
+            ))
         }
     }
 
@@ -58,7 +67,7 @@ class ProfileViewModel(
         val Factory = viewModelFactory {
             initializer {
                 val app = this[APPLICATION_KEY] as ProfilesApp
-                ProfileViewModel(createSavedStateHandle(), app.repository, app.photos)
+                ProfileViewModel(createSavedStateHandle(), app.repository, app.photos, app.messenger)
             }
         }
     }

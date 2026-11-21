@@ -1,6 +1,8 @@
 package com.example.profiles.ui.settings
 
 import android.app.Activity
+import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,12 +12,12 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -31,10 +33,11 @@ import com.example.profiles.ui.theme.ThemeMode
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
+    onHistoryClick: () -> Unit,
     viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val activity = LocalContext.current as? Activity
+    val activity = LocalActivity.current
 
     // which dialog is open (null = none); saveable so they survive rotation
     var showAddGroup by rememberSaveable { mutableStateOf(false) }
@@ -93,7 +96,15 @@ fun SettingsScreen(
                     }
                 )
             }
-
+            item { SectionHeader(stringResource(R.string.history)) }
+            item {
+                ListItem(
+                    modifier = Modifier.clickable(onClick = onHistoryClick),
+                    leadingContent = { Icon(Icons.Outlined.History, contentDescription = null) },
+                    headlineContent = { Text(stringResource(R.string.history)) },
+                    supportingContent = { Text(stringResource(R.string.history_hint)) }
+                )
+            }
             item { SectionHeader(stringResource(R.string.groups)) }
             items(state.groups, key = { "g${it.id}" }) { group ->
                 ListItem(
@@ -304,3 +315,4 @@ private fun FieldDialog(
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } }
     )
 }
+

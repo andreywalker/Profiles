@@ -13,6 +13,7 @@ data class Group(
     val isDefault: Boolean = false          // true only for "No group"
 )
 
+
 @Entity(tableName = "persons")
 data class Person(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -63,3 +64,18 @@ data class ReminderLog(
 
 @Entity(tableName = "settings")
 data class Setting(@PrimaryKey val key: String, val value: String)
+
+
+enum class HistoryType { CREATED, UPDATED, DELETED }
+
+@Entity(tableName = "history")
+data class HistoryEntry(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val personId: Long,
+    val personName: String,          // shown even after the person is deleted
+    val type: HistoryType,
+    val before: String?,             // JSON snapshot; null for CREATED
+    val after: String?,              // JSON snapshot; null for DELETED
+    val timestamp: Long,
+    val revertedAt: Long? = null
+)

@@ -8,6 +8,7 @@ class ProfilesRepository(private val db: AppDb) {
     private val groups = db.groupDao()
     private val fields = db.fieldDao()
     private val settings = db.settingDao()
+    private val history = db.historyDao()
 
     suspend fun getPerson(id: Long): Person? = persons.observe(id).first()
     suspend fun getFieldValues(personId: Long): List<FieldValue> = fields.getValues(personId)
@@ -16,21 +17,88 @@ class ProfilesRepository(private val db: AppDb) {
     fun observePerson(id: Long) = persons.observe(id)
     fun observeFieldValues(personId: Long) = fields.observeValues(personId)
 
-    suspend fun savePerson(person: Person, values: Map<Long, String>): Long =
-        db.withTransaction {
-            val id = if (person.id == 0L) persons.insert(person)
-            else { persons.update(person); person.id }
-            values.forEach { (fieldId, value) ->
-                if (value.isBlank()) fields.deleteValue(id, fieldId)
-            }
-            fields.upsertValues(
-                values.filterValues { it.isNotBlank() }
-                    .map { (fieldId, v) -> FieldValue(id, fieldId, v.trim()) }
-            )
-            id
-        }
+    suspend fun savePerson(person: Person, values: Map<Long, String>): Long = db.withTransaction {
+        val before = if (person.id == 0L) null else snapshot(person.id)
 
-    suspend fun deletePerson(id: Long) = persons.delete(id)
+        val id = if (person.id == 0L) persons.insert(person)
+        else { persons.update(person); person.id }
+        values.forEach { (fieldId, value) -> if (value.isBlank()) fields.deleteValue(id, fieldId) }
+        fields.upsertValues(
+            values.filterValues { it.isNotBlank() }.map { (f, v) -> FieldValue(id, f, v.trim()) }
+        )
+
+        val after = snapshot(id)!!
+        when {
+            before == null -> log(HistoryType.CREATED, null, after)
+            before != after -> log(HistoryType.UPDATED, before, after)   // saved without changes → no entry
+        }
+        id
+    }
+
+
+    suspend fun deletePerson(id: Long): Long? = db.withTransaction {
+        val before = snapshot(id) ?: return@withTransaction null
+        persons.delete(id)                                   // values removed by CASCADE
+        log(HistoryType.DELETED, before, null)
+    }
+
+
+
+
+    fun observeHistory(since: Long) = history.observeSince(since)
+
+    suspend fun purgeHistory(olderThan: Long) = history.deleteOlderThan(olderThan)
+
+    suspend fun revert(entryId: Long): Boolean = db.withTransaction {
+        val e = history.get(entryId)
+        if (e == null || e.revertedAt != null) return@withTransaction false
+        when (e.type) {
+            HistoryType.CREATED -> persons.delete(e.personId)
+            HistoryType.UPDATED, HistoryType.DELETED -> restore(PersonSnapshot.fromJson(e.before!!))
+        }
+        history.markReverted(e.id, System.currentTimeMillis())
+        true
+    }
+
+    suspend fun referencedPhotos(): Set<String> {
+        val keep = persons.getAll().mapNotNullTo(HashSet()) { it.photoPath }
+        history.getAll().forEach { e ->
+            listOfNotNull(e.before, e.after).forEach { json ->
+                PersonSnapshot.fromJson(json).person.photoPath?.let(keep::add)
+            }
+        }
+        return keep
+    }
+
+    private suspend fun snapshot(id: Long): PersonSnapshot? {
+        val p = persons.getById(id) ?: return null
+        return PersonSnapshot(p, fields.getValues(id).associate { it.fieldId to it.value })
+    }
+
+    private suspend fun restore(s: PersonSnapshot) {
+        // the group or a custom field may have been deleted since then
+        val groupId = if (groups.exists(s.person.groupId)) s.person.groupId else groups.getDefault().id
+        persons.upsert(s.person.copy(groupId = groupId))      // re-creates the person if deleted
+        fields.deleteAllValues(s.person.id)
+        val existing = fields.allDefIds().toSet()
+        fields.upsertValues(
+            s.values.filterKeys { it in existing }.map { (f, v) -> FieldValue(s.person.id, f, v) }
+        )
+    }
+
+    private suspend fun log(type: HistoryType, before: PersonSnapshot?, after: PersonSnapshot?): Long {
+        val p = (after ?: before)!!.person
+        return history.insert(
+            HistoryEntry(
+                personId = p.id,
+                personName = "${p.firstName} ${p.surname}",
+                type = type,
+                before = before?.toJson(),
+                after = after?.toJson(),
+                timestamp = System.currentTimeMillis()
+            )
+        )
+    }
 
 
 

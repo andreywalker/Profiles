@@ -8,7 +8,9 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.example.profiles.ui.edit.EditScreen
+import com.example.profiles.ui.history.HistoryScreen
 import com.example.profiles.ui.main.MainScreen
+import com.example.profiles.ui.notifications.NotificationsScreen
 import com.example.profiles.ui.profile.ProfileScreen
 import com.example.profiles.ui.settings.SettingsScreen
 
@@ -18,6 +20,7 @@ object Routes {
     const val EDIT = "edit?id={id}"
     const val SETTINGS = "settings"
     const val NOTIFICATIONS = "notifications"
+    const val HISTORY = "history"
 
     fun profile(id: Long) = "profile/$id"
     fun edit(id: Long? = null) = if (id == null) "edit" else "edit?id=$id"
@@ -50,10 +53,21 @@ fun NavGraph(openPersonId: Long? = null) {
         ) {
             EditScreen(onDone = { nav.popBackStack() })
         }
-        composable(Routes.SETTINGS) {
-            SettingsScreen(onBack = { nav.popBackStack() })
+        composable(Routes.NOTIFICATIONS) {
+            NotificationsScreen(
+                onBack = { nav.popBackStack() },
+                onOpenProfile = { id -> nav.navigate(Routes.profile(id)) }
+            )
         }
-        composable(Routes.NOTIFICATIONS) { Text("Notifications") }
+        composable(Routes.SETTINGS) {
+            SettingsScreen(
+                onBack = { nav.popBackStack() },
+                onHistoryClick = { nav.navigate(Routes.HISTORY) }
+            )
+        }
+        composable(Routes.HISTORY) {
+            HistoryScreen(onBack = { nav.popBackStack() })
+        }
     }
     LaunchedEffect(openPersonId) {
         openPersonId?.let { nav.navigate(Routes.profile(it)) }

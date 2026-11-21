@@ -78,4 +78,23 @@
         <item quantity="many">%d дней</item>
         <item quantity="other">%d дня</item>
     </plurals>
+    <string name="history">История</string>
+    <string name="history_hint">Изменения за последние 30 дней</string>
+    <string name="history_empty">За последние 30 дней изменений не было</string>
+    <string name="history_created">Создан: %1$s</string>
+    <string name="history_updated">Изменён: %1$s</string>
+    <string name="history_deleted">Удалён: %1$s</string>
+    <string name="revert">Откатить</string>
+    <string name="reverted">Отменено</string>
+    <string name="revert_title">Откатить это действие?</string>
+    <string name="revert_created_text">%1$s будет удалён.</string>
+    <string name="revert_updated_text">Профиль «%1$s» вернётся к состоянию до этого изменения. Более поздние изменения этого профиля будут потеряны.</string>
+    <string name="revert_deleted_text">%1$s будет восстановлен.</string>
+    <string name="msg_reverted">Действие отменено</string>
+    <string name="photo">Фото</string>
+    <string name="photo_none">нет</string>
+    <string name="photo_old">старое фото</string>
+    <string name="photo_new">новое фото</string>
+    <string name="undo">Отменить</string>
+    <string name="msg_profile_deleted">%1$s удалён</string>
 </resources>

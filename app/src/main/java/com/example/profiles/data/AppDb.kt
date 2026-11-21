@@ -5,7 +5,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [Group::class, Person::class, FieldDef::class,
-        FieldValue::class, ReminderLog::class, Setting::class],
+        FieldValue::class, ReminderLog::class, Setting::class, HistoryEntry::class],
     version = 1,
     exportSchema = false
 )
@@ -16,6 +16,7 @@ abstract class AppDb : RoomDatabase() {
     abstract fun fieldDao(): FieldDao
     abstract fun reminderDao(): ReminderDao
     abstract fun settingDao(): SettingDao
+    abstract fun historyDao(): HistoryDao
 
     companion object {
         fun create(context: Context): AppDb =

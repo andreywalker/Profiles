@@ -19,4 +19,8 @@ class PhotoStorage(private val context: Context) {
     fun delete(path: String?) {
         path?.let { File(it).delete() }
     }
+
+    fun keepOnly(paths: Set<String>) {
+        dir.listFiles()?.filter { it.absolutePath !in paths }?.forEach { it.delete() }
+    }
 }

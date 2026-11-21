@@ -40,7 +40,6 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory)
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val deleted by viewModel.deleted.collectAsStateWithLifecycle()
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
 
