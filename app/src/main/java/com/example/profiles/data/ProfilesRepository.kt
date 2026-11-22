@@ -2,6 +2,7 @@ package com.example.profiles.data
 
 import androidx.room.withTransaction
 import kotlinx.coroutines.flow.first
+import java.time.LocalDate
 
 class ProfilesRepository(private val db: AppDb) {
     private val persons = db.personDao()
@@ -133,8 +134,8 @@ class ProfilesRepository(private val db: AppDb) {
 
     fun observeReminders() = db.reminderDao().observeAll()
     suspend fun getAllPeople(): List<Person> = persons.getAll()
-    suspend fun reminderSent(personId: Long, year: Int, daysBefore: Int): Boolean =
-        db.reminderDao().exists(personId, year, daysBefore) > 0     // if you changed exists() to Boolean, drop "> 0"
+    suspend fun reminderSent(personId: Long, birthday: LocalDate, daysBefore: Int): Boolean =
+        db.reminderDao().exists(personId, birthday, daysBefore)
     suspend fun logReminder(log: ReminderLog) = db.reminderDao().insert(log)
 
 

@@ -94,4 +94,13 @@
     <string name="photo_new">new photo</string>
     <string name="undo">Undo</string>
     <string name="msg_profile_deleted">%1$s deleted</string>
+    <string name="no_results">Nothing found</string>
+    <string name="no_results_hint">No one matches "%1$s"</string>
+    <string name="clear_search">Clear search</string>
+    <string name="group_empty">No one in this group yet</string>
+    <string name="group_empty_hint">Add a person with the + button, or move someone here from their profile</string>
+    <string name="no_notifications_hint">Reminders appear 30, 15 and 7 days before each birthday</string>
+    <string name="history_empty_hint">Created, edited and deleted profiles will appear here</string>
+    <string name="reminder_profile_deleted">Profile deleted</string>
+    <string name="msg_reminder_person_deleted">This profile was deleted. You can restore it in Settings → History</string>
 </resources>

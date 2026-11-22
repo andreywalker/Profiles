@@ -52,10 +52,10 @@ data class FieldDef(
 )
 data class FieldValue(val personId: Long, val fieldId: Long, val value: String)
 
-@Entity(tableName = "reminder_log", primaryKeys = ["personId", "year", "daysBefore"])
+@Entity(tableName = "reminder_log", primaryKeys = ["personId", "birthday", "daysBefore"])
 data class ReminderLog(
     val personId: Long,
-    val year: Int,
+    val birthday: LocalDate,      // the upcoming birthday this reminder is for, e.g. 2027-05-14
     val daysBefore: Int,
     val title: String,
     val text: String,

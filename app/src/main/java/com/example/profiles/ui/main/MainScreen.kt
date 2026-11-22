@@ -14,7 +14,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Group
+import androidx.compose.material.icons.outlined.GroupOff
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -33,6 +35,7 @@ import com.example.profiles.R
 import com.example.profiles.notifications.NotificationHelper
 import com.example.profiles.utils.ageOf
 import com.example.profiles.ui.components.Avatar
+import com.example.profiles.ui.components.EmptyState
 import com.example.profiles.ui.components.GroupNameDialog
 import com.example.profiles.ui.components.displayName
 
@@ -123,14 +126,38 @@ fun MainContent(
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
             GroupTabs(state, onGroupSelected, onAddGroupClick = { showNewGroupDialog = true })
-            if (state.people.isEmpty()) {
-                EmptyState()
-            } else {
-                LazyColumn(contentPadding = PaddingValues(bottom = 88.dp)) {
-                    items(state.people, key = { it.person.id }) { item ->
-                        PersonRow(item, onClick = { onPersonClick(item.person.id) })
+            when {
+                !state.loaded -> Unit    // still loading: show nothing
+
+                state.people.isNotEmpty() ->
+                    LazyColumn(contentPadding = PaddingValues(bottom = 88.dp)) {
+                        items(state.people, key = { it.person.id }) { item ->
+                            PersonRow(item, onClick = { onPersonClick(item.person.id) })
+                        }
                     }
-                }
+
+                // 1. search gave no results
+                state.query.isNotBlank() -> EmptyState(
+                    icon = Icons.Outlined.SearchOff,
+                    title = stringResource(R.string.no_results),
+                    hint = stringResource(R.string.no_results_hint, state.query.trim()),
+                    actionLabel = stringResource(R.string.clear_search),
+                    onAction = { onQueryChange("") }
+                )
+
+                // 2. a group tab with nobody in it
+                state.selectedGroupId != null -> EmptyState(
+                    icon = Icons.Outlined.GroupOff,
+                    title = stringResource(R.string.group_empty),
+                    hint = stringResource(R.string.group_empty_hint)
+                )
+
+                // 3. no people at all
+                else -> EmptyState(
+                    icon = Icons.Outlined.Group,
+                    title = stringResource(R.string.no_profiles),
+                    hint = stringResource(R.string.no_profiles_hint)
+                )
             }
         }
     }
@@ -211,28 +238,4 @@ private fun PersonRow(item: PersonItem, onClick: () -> Unit) {
             Text(ageOf(p.birthDate).toString(), style = MaterialTheme.typography.titleMedium)
         }
     )
-}
-
-@Composable
-private fun EmptyState() {
-    Column(
-        Modifier.fillMaxSize().padding(32.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(
-            Icons.Outlined.Group, contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(56.dp)
-        )
-        Spacer(Modifier.height(16.dp))
-        Text(stringResource(R.string.no_profiles), style = MaterialTheme.typography.titleMedium)
-        Spacer(Modifier.height(4.dp))
-        Text(
-            stringResource(R.string.no_profiles_hint),
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
 }

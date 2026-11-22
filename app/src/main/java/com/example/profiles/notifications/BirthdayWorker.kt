@@ -28,8 +28,7 @@ class BirthdayWorker(context: Context, params: WorkerParameters) : CoroutineWork
             // smallest threshold that covers "days": 20 → 30, 10 → 15, 3 → 7, 40 → none.
             // If the phone was off on the exact day, the reminder still comes once.
             val threshold = REMINDER_DAYS.firstOrNull { days <= it } ?: continue
-            if (repo.reminderSent(p.id, next.year, threshold)) continue   // no duplicates
-
+            if (repo.reminderSent(p.id, next, threshold)) continue
             val title = if (days == 0) {
                 ctx.getString(R.string.reminder_title_today, p.name)
             } else {
@@ -46,8 +45,7 @@ class BirthdayWorker(context: Context, params: WorkerParameters) : CoroutineWork
             val text = lines.joinToString("\n")
 
             NotificationHelper.show(ctx, p.id, threshold, title, text)
-            repo.logReminder(ReminderLog(p.id, next.year, threshold, title, text, System.currentTimeMillis()))
-        }
+            repo.logReminder(ReminderLog(p.id, next, threshold, title, text, System.currentTimeMillis()))        }
         return Result.success()
     }
 

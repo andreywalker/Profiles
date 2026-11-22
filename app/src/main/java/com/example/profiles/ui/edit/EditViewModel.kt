@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.profiles.ProfilesApp
 import com.example.profiles.data.*
+import com.example.profiles.notifications.BirthdayWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -43,7 +44,8 @@ data class EditUiState(
 class EditViewModel(
     savedState: SavedStateHandle,
     private val repo: ProfilesRepository,
-    private val photos: PhotoStorage
+    private val photos: PhotoStorage,
+    private val onDataChanged: () -> Unit
 ) : ViewModel() {
 
     private val personId: Long = savedState["id"] ?: -1L
@@ -129,6 +131,7 @@ class EditViewModel(
                 otherMedia = s.otherMedia.orNull()
             )
             repo.savePerson(person, s.customValues)
+            onDataChanged()
             _state.update { it.copy(saved = true) }
         }
     }
@@ -139,7 +142,10 @@ class EditViewModel(
         val Factory = viewModelFactory {
             initializer {
                 val app = this[APPLICATION_KEY] as ProfilesApp
-                EditViewModel(createSavedStateHandle(), app.repository, app.photos)
+                EditViewModel(
+                    createSavedStateHandle(), app.repository, app.photos,
+                    onDataChanged = { BirthdayWorker.runNow(app) }
+                )
             }
         }
     }

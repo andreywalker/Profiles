@@ -97,4 +97,13 @@
     <string name="photo_new">новое фото</string>
     <string name="undo">Отменить</string>
     <string name="msg_profile_deleted">%1$s удалён</string>
+    <string name="no_results">Ничего не найдено</string>
+    <string name="no_results_hint">Нет никого по запросу «%1$s»</string>
+    <string name="clear_search">Очистить поиск</string>
+    <string name="group_empty">В этой группе пока никого нет</string>
+    <string name="group_empty_hint">Добавьте человека кнопкой + или переместите кого-нибудь сюда из его профиля</string>
+    <string name="no_notifications_hint">Напоминания приходят за 30, 15 и 7 дней до дня рождения</string>
+    <string name="history_empty_hint">Здесь появятся созданные, изменённые и удалённые профили</string>
+    <string name="reminder_profile_deleted">Профиль удалён</string>
+    <string name="msg_reminder_person_deleted">Этот профиль удалён. Его можно восстановить в Настройки → История</string>
 </resources>

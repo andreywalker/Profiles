@@ -2,6 +2,7 @@ package com.example.profiles.data
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 @Dao
 interface PersonDao {
@@ -78,8 +79,8 @@ interface ReminderDao {
     @Query("SELECT * FROM reminder_log ORDER BY sentAt DESC")
     fun observeAll(): Flow<List<ReminderLog>>
 
-    @Query("SELECT COUNT(*) FROM reminder_log WHERE personId = :p AND year = :y AND daysBefore = :d")
-    suspend fun exists(p: Long, y: Int, d: Int): Int
+    @Query("SELECT EXISTS(SELECT 1 FROM reminder_log WHERE personId = :p AND birthday = :birthday AND daysBefore = :d)")
+    suspend fun exists(p: Long, birthday: LocalDate, d: Int): Boolean
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(log: ReminderLog)

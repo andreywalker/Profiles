@@ -17,6 +17,7 @@ data class PersonItem(val person: Person, val group: Group?)
 
 data class MainUiState(
     val groups: List<Group> = emptyList(),
+    val loaded: Boolean = false,
     val people: List<PersonItem> = emptyList(),
     val selectedGroupId: Long? = null,      // null = "All"
     val query: String = ""
@@ -43,7 +44,7 @@ class MainViewModel(private val repo: ProfilesRepository) : ViewModel() {
             }
             .map { PersonItem(it, groupsById[it.groupId]) }
 
-        MainUiState(groups, items, sel, q)
+        MainUiState(loaded = true, groups = groups, people = items, selectedGroupId = sel, query = q)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), MainUiState())
 
     fun onQueryChange(value: String) { query.value = value }
