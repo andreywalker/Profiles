@@ -46,14 +46,12 @@ An app for people's profiles, to keep track of their birthdays, favorite things,
 
 ## Screenshots
 
-<p>
-  <img src="screenshots/main.jpg" width="200">
-  <img src="screenshots/profile.png" width="200">
-  <img src="screenshots/edit.png" width="200">
-  <img src="screenshots/settings.png" width="200">
-  <img src="screenshots/history.png" width="200">
-  <img src="screenshots/notifications.png" width="200">
-</p>
+![screenshot](screenshots/main.jpg)
+![screenshot](screenshots/profile.png)
+![screenshot](screenshots/edit.png)
+![screenshot](screenshots/settings.png)
+![screenshot](screenshots/history.png)
+![screenshot](screenshots/notifications.png)
 
 ## Running instructions
 
