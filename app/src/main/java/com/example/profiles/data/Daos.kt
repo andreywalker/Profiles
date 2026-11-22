@@ -26,6 +26,15 @@ interface PersonDao {
     suspend fun getById(id: Long): Person?
 
     @Upsert suspend fun upsert(person: Person)
+
+    // PersonDao
+    @Query("SELECT id FROM persons WHERE groupId = :groupId")
+    suspend fun idsInGroup(groupId: Long): List<Long>
+
+    /** Undo of a group delete: only people still in No group go back. */
+    @Query("UPDATE persons SET groupId = :groupId WHERE id IN (:ids) AND groupId = :noGroupId")
+    suspend fun moveBack(ids: List<Long>, noGroupId: Long, groupId: Long)
+
 }
 
 @Dao
@@ -72,6 +81,9 @@ interface FieldDao {
     suspend fun allDefIds(): List<Long>
     @Query("DELETE FROM field_values WHERE personId = :personId")
     suspend fun deleteAllValues(personId: Long)
+
+    @Query("SELECT * FROM field_values WHERE fieldId = :fieldId")
+    suspend fun valuesForField(fieldId: Long): List<FieldValue>
 }
 
 @Dao

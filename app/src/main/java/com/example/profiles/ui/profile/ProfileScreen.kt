@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -96,7 +97,8 @@ fun ProfileScreen(
                     stringResource(R.string.birth_date),
                     p.birthDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
                 )
-                InfoRow(stringResource(R.string.age), ageOf(p.birthDate).toString())
+                val age = ageOf(p.birthDate)
+                InfoRow(stringResource(R.string.age), pluralStringResource(R.plurals.age_years, age, age))
                 InfoRow(stringResource(R.string.group), state.group?.displayName() ?: "")
             }
 

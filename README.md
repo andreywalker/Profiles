@@ -1,40 +1,57 @@
 # Profiles / Досье app
 
-An app for peoples profiles, to keep track on their birthdays, favorite things, and other info that can be easily be forgoten
+An app for people's profiles, to keep track of their birthdays, favorite things, and other info that can easily be forgotten
 
 ## Features
 
-* Person's Profile
+* Person's profile
 * Persons' grouping
-* Birthday notifications
+* Custom fields
 * Wishlist field
+* Birthday notifications
+* Notification history
+* Change history with revert
+* Light and dark themes
+* English and Russian languages
 
 ## Screens
 
 * **Main Screen** containing:
-  * Search
-  * Groups tabs
-  * List of persons in selected tabs
-  * Navigation to other screens
-*  **Profile Screen** containing:
+    * Search
+    * Groups tabs
+    * List of persons in selected tab
+    * Navigation to other screens
+* **Profile Screen** containing:
     * Picture (Avatar)
     * Fullname
     * Birthdate
     * Where you met this person
     * Group to which the person belongs
+    * Contacts with quick actions
     * Some facts
     * Custom fields (info)
-* **Settings Screen** containing:
-  * Language settings
 * **Edit Person Screen** containing:
-  * All the person info fields, but editable
-
+    * All the person info fields, but editable
+* **Settings Screen** containing:
+    * Theme settings
+    * Language settings
+    * Groups settings
+    * Custom fields settings
+    * History
+* **History Screen** containing:
+    * Changes made in the last 30 days
+    * Revert button for each change
+* **Notifications Screen** containing:
+    * List of sent birthday reminders
 
 ## Screenshots
 
-![screenshot](screenshots/photo_2026-10-27_20-52-16.jpg)
-![screenshot](screenshots/photo_2026-10-27_20-52-25.jpg)
-![screenshot](screenshots/photo_2026-10-27_20-52-28.jpg)
+![screenshot](screenshots/main.png)
+![screenshot](screenshots/profile.png)
+![screenshot](screenshots/edit.png)
+![screenshot](screenshots/settings.png)
+![screenshot](screenshots/history.png)
+![screenshot](screenshots/notifications.png)
 
 ## Running instructions
 

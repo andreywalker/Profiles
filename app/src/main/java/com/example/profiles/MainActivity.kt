@@ -77,7 +77,9 @@ class MainActivity : ComponentActivity() {
                 LaunchedEffect(Unit) {
                     (application as ProfilesApp).messenger.messages.collect { m ->
                         val result = snackbar.showSnackbar(
-                            message = currentResources.getString(m.text, *m.args.toTypedArray()),
+                            message = m.quantity
+                                ?.let { q -> currentResources.getQuantityString(m.text, q, *m.args.toTypedArray()) }
+                                ?: currentResources.getString(m.text, *m.args.toTypedArray()),
                             actionLabel = m.action?.let { currentResources.getString(it) },
                             duration = SnackbarDuration.Short
                         )

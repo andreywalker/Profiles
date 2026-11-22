@@ -103,4 +103,14 @@
     <string name="history_empty_hint">Created, edited and deleted profiles will appear here</string>
     <string name="reminder_profile_deleted">Profile deleted</string>
     <string name="msg_reminder_person_deleted">This profile was deleted. You can restore it in Settings → History</string>
+    <plurals name="age_years">
+        <item quantity="one">%d y/o</item>
+        <item quantity="other">%d y/o</item>
+    </plurals>
+    <string name="msg_group_deleted">Group \"%1$s\" deleted</string>
+    <string name="msg_field_deleted">Field \"%1$s\" deleted</string>
+    <plurals name="msg_group_deleted_moved">
+        <item quantity="one">Group \"%1$s\" deleted. %2$d person moved to No group</item>
+        <item quantity="other">Group \"%1$s\" deleted. %2$d people moved to No group</item>
+    </plurals>
 </resources>

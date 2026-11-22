@@ -18,6 +18,9 @@ class ProfilesRepository(private val db: AppDb) {
     fun observePerson(id: Long) = persons.observe(id)
     fun observeFieldValues(personId: Long) = fields.observeValues(personId)
 
+    data class DeletedGroup(val group: Group, val memberIds: List<Long>)
+    data class DeletedField(val def: FieldDef, val values: List<FieldValue>)
+
     suspend fun savePerson(person: Person, values: Map<Long, String>): Long = db.withTransaction {
         val before = if (person.id == 0L) null else snapshot(person.id)
 
@@ -108,14 +111,20 @@ class ProfilesRepository(private val db: AppDb) {
     fun observeGroups() = groups.observeAll()
     suspend fun addGroup(name: String) = groups.insert(Group(name = name.trim()))
     suspend fun renameGroup(group: Group, name: String) = groups.update(group.copy(name = name.trim()))
-    suspend fun deleteGroup(group: Group) {
-        if (group.isDefault) return
-        db.withTransaction {
+    suspend fun deleteGroup(group: Group): DeletedGroup? {
+        if (group.isDefault) return null
+        return db.withTransaction {
+            val members = persons.idsInGroup(group.id)
             persons.moveGroup(group.id, groups.getDefault().id)
             groups.delete(group.id)
+            DeletedGroup(group, members)
         }
     }
 
+    suspend fun restoreGroup(d: DeletedGroup) = db.withTransaction {
+        groups.insert(d.group)                                   // same id as before
+        persons.moveBack(d.memberIds, groups.getDefault().id, d.group.id)
+    }
 
 
 
@@ -124,7 +133,20 @@ class ProfilesRepository(private val db: AppDb) {
         fields.insertDef(FieldDef(name = name.trim(), type = type, position = fields.maxPosition() + 1))
     suspend fun renameField(def: FieldDef, name: String) =
         fields.updateDef(def.copy(name = name.trim(), builtInKey = null))
-    suspend fun deleteField(def: FieldDef) = fields.deleteDef(def.id)
+    suspend fun deleteField(def: FieldDef): DeletedField? {
+        if (!def.deletable) return null                          // Facts
+        return db.withTransaction {
+            val values = fields.valuesForField(def.id)
+            fields.deleteDef(def.id)                             // values removed by CASCADE
+            DeletedField(def, values)
+        }
+    }
+
+    suspend fun restoreField(d: DeletedField) = db.withTransaction {
+        fields.insertDef(d.def)                                  // same id and position
+        val existing = persons.getAll().mapTo(HashSet()) { it.id }
+        fields.upsertValues(d.values.filter { it.personId in existing })   // skip people deleted since
+    }
 
 
 

@@ -8,8 +8,11 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.profiles.ProfilesApp
 import com.example.profiles.data.*
 import com.example.profiles.ui.theme.ThemeMode
+import com.example.profiles.utils.Messenger
+import com.example.profiles.utils.UiMessage
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import com.example.profiles.R
 
 data class SettingsUiState(
     val theme: ThemeMode = ThemeMode.DARK,
@@ -18,7 +21,10 @@ data class SettingsUiState(
     val fields: List<FieldDef> = emptyList()
 )
 
-class SettingsViewModel(private val repo: ProfilesRepository) : ViewModel() {
+class SettingsViewModel(
+    private val repo: ProfilesRepository,
+    private val messenger: Messenger
+) : ViewModel()  {
 
     val state: StateFlow<SettingsUiState> = combine(
         repo.observeSetting("theme"),
@@ -44,11 +50,39 @@ class SettingsViewModel(private val repo: ProfilesRepository) : ViewModel() {
 
     fun addGroup(name: String) = launch { repo.addGroup(name) }
     fun renameGroup(group: Group, name: String) = launch { repo.renameGroup(group, name) }
-    fun deleteGroup(group: Group) = launch { repo.deleteGroup(group) }
+    fun deleteGroup(group: Group) = launch {
+        val deleted = repo.deleteGroup(group) ?: return@launch
+        val moved = deleted.memberIds.size
+        messenger.show(
+            if (moved == 0) UiMessage(
+                text = R.string.msg_group_deleted,
+                args = listOf(group.name),
+                action = R.string.undo,
+                onAction = { repo.restoreGroup(deleted) }
+            ) else UiMessage(
+                text = R.plurals.msg_group_deleted_moved,
+                args = listOf(group.name, moved),
+                quantity = moved,
+                action = R.string.undo,
+                onAction = { repo.restoreGroup(deleted) }
+            )
+        )
+    }
+
+
 
     fun addField(name: String, type: FieldType) = launch { repo.addField(name, type) }
     fun renameField(def: FieldDef, name: String) = launch { repo.renameField(def, name) }
-    fun deleteField(def: FieldDef) = launch { repo.deleteField(def) }
+    /** displayName is passed from the UI, so built-in fields show translated. */
+    fun deleteField(def: FieldDef, displayName: String) = launch {
+        val deleted = repo.deleteField(def) ?: return@launch
+        messenger.show(UiMessage(
+            text = R.string.msg_field_deleted,
+            args = listOf(displayName),
+            action = R.string.undo,
+            onAction = { repo.restoreField(deleted) }
+        ))
+    }
 
     private fun launch(block: suspend () -> Unit) {
         viewModelScope.launch { block() }
@@ -56,7 +90,7 @@ class SettingsViewModel(private val repo: ProfilesRepository) : ViewModel() {
 
     companion object {
         val Factory = viewModelFactory {
-            initializer { SettingsViewModel((this[APPLICATION_KEY] as ProfilesApp).repository) }
+            initializer { SettingsViewModel((this[APPLICATION_KEY] as ProfilesApp).repository, (this[APPLICATION_KEY] as ProfilesApp).messenger) }
         }
     }
 }

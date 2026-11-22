@@ -205,11 +205,12 @@ fun SettingsScreen(
     }
 
     state.fields.find { it.id == deleteFieldId }?.let { field ->
+        val name = field.displayName()
         ConfirmDeleteDialog(
-            title = stringResource(R.string.delete_field_title, field.displayName()),
+            title = stringResource(R.string.delete_field_title, name),
             text = stringResource(R.string.delete_field_text),
             onDismiss = { deleteFieldId = null },
-            onConfirm = { viewModel.deleteField(field) }
+            onConfirm = { viewModel.deleteField(field, name) }
         )
     }
 }

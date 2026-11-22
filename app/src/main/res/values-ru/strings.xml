@@ -106,4 +106,18 @@
     <string name="history_empty_hint">Здесь появятся созданные, изменённые и удалённые профили</string>
     <string name="reminder_profile_deleted">Профиль удалён</string>
     <string name="msg_reminder_person_deleted">Этот профиль удалён. Его можно восстановить в Настройки → История</string>
+    <plurals name="age_years">
+        <item quantity="one">%d год</item>
+        <item quantity="few">%d года</item>
+        <item quantity="many">%d лет</item>
+        <item quantity="other">%d года</item>
+    </plurals>
+    <string name="msg_group_deleted">Группа «%1$s» удалена</string>
+    <string name="msg_field_deleted">Поле «%1$s» удалено</string>
+    <plurals name="msg_group_deleted_moved">
+        <item quantity="one">Группа «%1$s» удалена. %2$d человек перемещён в «Без группы»</item>
+        <item quantity="few">Группа «%1$s» удалена. %2$d человека перемещены в «Без группы»</item>
+        <item quantity="many">Группа «%1$s» удалена. %2$d человек перемещены в «Без группы»</item>
+        <item quantity="other">Группа «%1$s» удалена. %2$d человека перемещены в «Без группы»</item>
+    </plurals>
 </resources>
