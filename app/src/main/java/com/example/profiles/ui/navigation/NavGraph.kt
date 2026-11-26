@@ -7,6 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
+import com.example.profiles.ui.backup.BackupScreen
 import com.example.profiles.ui.edit.EditScreen
 import com.example.profiles.ui.history.HistoryScreen
 import com.example.profiles.ui.main.MainScreen
@@ -21,7 +22,7 @@ object Routes {
     const val SETTINGS = "settings"
     const val NOTIFICATIONS = "notifications"
     const val HISTORY = "history"
-
+    const val BACKUP = "backup"
     fun profile(id: Long) = "profile/$id"
     fun edit(id: Long? = null) = if (id == null) "edit" else "edit?id=$id"
 }
@@ -62,12 +63,15 @@ fun NavGraph(openPersonId: Long? = null) {
         composable(Routes.SETTINGS) {
             SettingsScreen(
                 onBack = { nav.popBackStack() },
-                onHistoryClick = { nav.navigate(Routes.HISTORY) }
+                onHistoryClick = { nav.navigate(Routes.HISTORY) },
+                onBackupClick = { nav.navigate(Routes.BACKUP) }
             )
         }
+        composable(Routes.BACKUP) { BackupScreen(onBack = { nav.popBackStack() }) }
         composable(Routes.HISTORY) {
             HistoryScreen(onBack = { nav.popBackStack() })
         }
+
     }
     LaunchedEffect(openPersonId) {
         openPersonId?.let { nav.navigate(Routes.profile(it)) }

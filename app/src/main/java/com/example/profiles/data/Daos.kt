@@ -51,6 +51,9 @@ interface GroupDao {
     suspend fun delete(id: Long)
     @Query("SELECT EXISTS(SELECT 1 FROM person_groups WHERE id = :id)")
     suspend fun exists(id: Long): Boolean
+
+    @Query("SELECT * FROM person_groups")
+    suspend fun getAll(): List<Group>
 }
 
 @Dao
@@ -84,6 +87,12 @@ interface FieldDao {
 
     @Query("SELECT * FROM field_values WHERE fieldId = :fieldId")
     suspend fun valuesForField(fieldId: Long): List<FieldValue>
+
+    @Query("SELECT * FROM field_defs")
+    suspend fun getAllDefs(): List<FieldDef>
+
+    @Query("SELECT * FROM field_values")
+    suspend fun getAllValues(): List<FieldValue>
 }
 
 @Dao

@@ -34,10 +34,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.profiles.R
 import com.example.profiles.notifications.NotificationHelper
+import com.example.profiles.sync.SyncState
 import com.example.profiles.utils.ageOf
 import com.example.profiles.ui.components.Avatar
 import com.example.profiles.ui.components.EmptyState
 import com.example.profiles.ui.components.GroupNameDialog
+import com.example.profiles.ui.components.SyncButton
 import com.example.profiles.ui.components.displayName
 
 @Composable
@@ -52,6 +54,7 @@ fun MainScreen(
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { /* nothing to do: if denied, reminders still appear in history */ }
+    val syncState by viewModel.syncState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= 33 && !NotificationHelper.hasPermission(context)) {
@@ -67,7 +70,9 @@ fun MainScreen(
         onAddClick = onAddClick,
         onSettingsClick = onSettingsClick,
         onAddGroup = viewModel::addGroup,
-        onNotificationsClick = onNotificationsClick
+        onNotificationsClick = onNotificationsClick,
+        syncState = syncState,
+        onSyncClick = viewModel::onSyncClick,
     )
 
 }
@@ -82,7 +87,9 @@ fun MainContent(
     onAddClick: () -> Unit,
     onAddGroup: (String) -> Unit,
     onSettingsClick: () -> Unit,
-    onNotificationsClick: () -> Unit
+    onNotificationsClick: () -> Unit,
+    syncState: SyncState,
+    onSyncClick: () -> Unit,
 ) {
     // survives rotation thanks to rememberSaveable
     var searchOpen by rememberSaveable { mutableStateOf(false) }
@@ -113,6 +120,7 @@ fun MainContent(
                             Icon(Icons.Filled.Search, stringResource(R.string.search))
                         }
                     }
+                    SyncButton(state = syncState, onClick = onSyncClick)
                     IconButton(onClick = onSettingsClick) {
                         Icon(Icons.Outlined.Settings, stringResource(R.string.settings))
                     }

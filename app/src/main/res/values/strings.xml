@@ -113,4 +113,31 @@
         <item quantity="one">Group \"%1$s\" deleted. %2$d person moved to No group</item>
         <item quantity="other">Group \"%1$s\" deleted. %2$d people moved to No group</item>
     </plurals>
+    <string name="sync">Sync</string>
+    <string name="sync_in_progress">Syncing…</string>
+    <string name="synced">Synced</string>
+    <string name="sync_error">Sync error</string>
+    <string name="sync_server_down">Server is unavailable</string>
+    <string name="sync_http_error">Sync failed: error %1$d %2$s</string>
+    <string name="sync_failed">Sync failed: %1$s</string>
+    <string name="sync_now">Sync now</string>
+    <string name="server">Server</string>
+    <string name="server_address">Server address</string>
+    <string name="server_address_hint">Emulator: http://10.0.2.2:8000 · Phone: your computer\'s IP</string>
+    <string name="server_address_invalid">Not a valid address</string>
+    <string name="backup_title">Server backup</string>
+    <string name="backup_last">Last backup: %1$s</string>
+    <string name="never_synced">Never synced</string>
+    <string name="last_synced">Last synced: %1$s</string>
+    <string name="backup_load_error">Couldn\'t load the backup</string>
+    <string name="backup_server_down_hint">Check that the server is running and the address in Settings is correct</string>
+    <string name="error_code">Error %1$d %2$s</string>
+    <string name="retry">Retry</string>
+    <string name="refresh">Refresh</string>
+    <string name="backup_empty">No data on the server yet</string>
+    <string name="backup_empty_hint">Sync to upload your profiles</string>
+    <plurals name="backup_people">
+        <item quantity="one">%d person</item>
+        <item quantity="other">%d people</item>
+    </plurals>
 </resources>

@@ -166,4 +166,15 @@ class ProfilesRepository(private val db: AppDb) {
         db.openHelper.readableDatabase
             .query("SELECT value FROM settings WHERE `key` = ?", arrayOf(key))
             .use { if (it.moveToFirst()) it.getString(0) else null }
+
+    suspend fun exportAll(): LocalData = db.withTransaction {
+        LocalData(groups.getAll(), fields.getAllDefs(), persons.getAll(), fields.getAllValues())
+    }
 }
+
+data class LocalData(
+    val groups: List<Group>,
+    val fields: List<FieldDef>,
+    val persons: List<Person>,
+    val values: List<FieldValue>
+)

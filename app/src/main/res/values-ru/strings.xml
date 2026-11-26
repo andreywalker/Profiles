@@ -120,4 +120,33 @@
         <item quantity="many">Группа «%1$s» удалена. %2$d человек перемещены в «Без группы»</item>
         <item quantity="other">Группа «%1$s» удалена. %2$d человека перемещены в «Без группы»</item>
     </plurals>
+    <string name="sync">Синхронизировать</string>
+    <string name="sync_in_progress">Синхронизация…</string>
+    <string name="synced">Синхронизировано</string>
+    <string name="sync_error">Ошибка синхронизации</string>
+    <string name="sync_server_down">Сервер недоступен</string>
+    <string name="sync_http_error">Ошибка синхронизации: код %1$d %2$s</string>
+    <string name="sync_failed">Ошибка синхронизации: %1$s</string>
+    <string name="sync_now">Синхронизировать</string>
+    <string name="server">Сервер</string>
+    <string name="server_address">Адрес сервера</string>
+    <string name="server_address_hint">Эмулятор: http://10.0.2.2:8000 · Телефон: IP вашего компьютера</string>
+    <string name="server_address_invalid">Неверный адрес</string>
+    <string name="backup_title">Резервная копия</string>
+    <string name="backup_last">Последняя копия: %1$s</string>
+    <string name="never_synced">Ещё не синхронизировано</string>
+    <string name="last_synced">Синхронизировано: %1$s</string>
+    <string name="backup_load_error">Не удалось загрузить копию</string>
+    <string name="backup_server_down_hint">Проверьте, что сервер запущен и адрес в настройках верный</string>
+    <string name="error_code">Ошибка %1$d %2$s</string>
+    <string name="retry">Повторить</string>
+    <string name="refresh">Обновить</string>
+    <string name="backup_empty">На сервере пока нет данных</string>
+    <string name="backup_empty_hint">Синхронизируйте, чтобы загрузить профили</string>
+    <plurals name="backup_people">
+        <item quantity="one">%d человек</item>
+        <item quantity="few">%d человека</item>
+        <item quantity="many">%d человек</item>
+        <item quantity="other">%d человека</item>
+    </plurals>
 </resources>

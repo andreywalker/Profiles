@@ -10,7 +10,9 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.CloudQueue
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Dns
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material3.*
@@ -26,19 +28,33 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.profiles.R
 import com.example.profiles.data.FieldType
 import com.example.profiles.ui.components.GroupNameDialog
+import com.example.profiles.ui.components.ServerAddressDialog
 import com.example.profiles.ui.components.displayName
 import com.example.profiles.ui.theme.ThemeMode
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
     onHistoryClick: () -> Unit,
-    viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
+    viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory),
+    onBackupClick: () -> Unit
 ) {
+
     val state by viewModel.state.collectAsStateWithLifecycle()
     val activity = LocalActivity.current
-
+    var showServerDialog by rememberSaveable { mutableStateOf(false) }
+    val lastSyncText = state.lastSync?.let {
+        stringResource(
+            R.string.last_synced,
+            Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault())
+                .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
+        )
+    } ?: stringResource(R.string.never_synced)
     // which dialog is open (null = none); saveable so they survive rotation
     var showAddGroup by rememberSaveable { mutableStateOf(false) }
     var renameGroupId by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -103,6 +119,23 @@ fun SettingsScreen(
                     leadingContent = { Icon(Icons.Outlined.History, contentDescription = null) },
                     headlineContent = { Text(stringResource(R.string.history)) },
                     supportingContent = { Text(stringResource(R.string.history_hint)) }
+                )
+            }
+            item { SectionHeader(stringResource(R.string.server)) }
+            item {
+                ListItem(
+                    modifier = Modifier.clickable { showServerDialog = true },
+                    leadingContent = { Icon(Icons.Outlined.Dns, contentDescription = null) },
+                    headlineContent = { Text(stringResource(R.string.server_address)) },
+                    supportingContent = { Text(state.serverUrl) }
+                )
+            }
+            item {
+                ListItem(
+                    modifier = Modifier.clickable(onClick = onBackupClick),
+                    leadingContent = { Icon(Icons.Outlined.CloudQueue, contentDescription = null) },
+                    headlineContent = { Text(stringResource(R.string.backup_title)) },
+                    supportingContent = { Text(lastSyncText) }
                 )
             }
             item { SectionHeader(stringResource(R.string.groups)) }
@@ -213,6 +246,14 @@ fun SettingsScreen(
             onConfirm = { viewModel.deleteField(field, name) }
         )
     }
+    if (showServerDialog) {
+        ServerAddressDialog(
+            initial = state.serverUrl,
+            onDismiss = { showServerDialog = false },
+            onConfirm = viewModel::setServerUrl
+        )
+    }
+
 }
 
 @Composable

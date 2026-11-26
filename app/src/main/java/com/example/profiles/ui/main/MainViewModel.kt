@@ -10,6 +10,8 @@ import com.example.profiles.ProfilesApp
 import com.example.profiles.data.Group
 import com.example.profiles.data.Person
 import com.example.profiles.data.ProfilesRepository
+import com.example.profiles.sync.SyncManager
+import com.example.profiles.sync.SyncState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -23,8 +25,10 @@ data class MainUiState(
     val query: String = ""
 )
 
-class MainViewModel(private val repo: ProfilesRepository) : ViewModel() {
+class MainViewModel(private val repo: ProfilesRepository, private val syncManager: SyncManager) : ViewModel() {
 
+    val syncState: StateFlow<SyncState> = syncManager.state
+    fun onSyncClick() = syncManager.requestSync()
     private val query = MutableStateFlow("")
     private val selectedGroupId = MutableStateFlow<Long?>(null)
 
@@ -58,7 +62,8 @@ class MainViewModel(private val repo: ProfilesRepository) : ViewModel() {
     companion object {
         val Factory = viewModelFactory {
             initializer {
-                MainViewModel((this[APPLICATION_KEY] as ProfilesApp).repository)
+                val app = this[APPLICATION_KEY] as ProfilesApp
+                MainViewModel(app.repository, app.syncManager)
             }
         }
     }

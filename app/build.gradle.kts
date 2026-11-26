@@ -66,4 +66,6 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.appcompat)
     implementation(libs.material.icons)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
 }

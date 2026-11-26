@@ -18,27 +18,38 @@ data class SettingsUiState(
     val theme: ThemeMode = ThemeMode.DARK,
     val language: String = "system",
     val groups: List<Group> = emptyList(),
-    val fields: List<FieldDef> = emptyList()
+    val fields: List<FieldDef> = emptyList(),
+    val serverUrl: String = BackupRepository.DEFAULT_SERVER_URL,
+    val lastSync: Long? = null
 )
 
 class SettingsViewModel(
     private val repo: ProfilesRepository,
     private val messenger: Messenger
 ) : ViewModel()  {
+    private val server = combine(
+        repo.observeSetting(BackupRepository.KEY_SERVER_URL),
+        repo.observeSetting(BackupRepository.KEY_LAST_SYNC)
+    ) { url, last -> (url ?: BackupRepository.DEFAULT_SERVER_URL) to last?.toLongOrNull() }
 
     val state: StateFlow<SettingsUiState> = combine(
         repo.observeSetting("theme"),
         repo.observeSetting("language"),
         repo.observeGroups(),
-        repo.observeFieldDefs()
-    ) { theme, lang, groups, fields ->
+        repo.observeFieldDefs(),
+        server
+    ) { theme, lang, groups, fields, srv ->
         SettingsUiState(
             theme = theme?.let(ThemeMode::valueOf) ?: ThemeMode.DARK,
             language = lang ?: "system",
             groups = groups,
-            fields = fields
+            fields = fields,
+            serverUrl = srv.first,
+            lastSync = srv.second
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
+
+    fun setServerUrl(url: String) = launch { repo.setSetting(BackupRepository.KEY_SERVER_URL, url) }
 
     fun setTheme(mode: ThemeMode) = launch { repo.setSetting("theme", mode.name) }
 
